@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "937760749920",
+    "firebase_url": "https://salesvisit-66317.firebaseio.com",
+    "project_id": "salesvisit-66317",
+    "storage_bucket": "salesvisit-66317.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:937760749920:android:06b4d417fe2d8b8f04c605",
+        "android_client_info": {
+          "package_name": "com.leebrium.salesvisit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "937760749920-9so07cv50inpk50nm9bgmr61oi9qia01.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBxx6gJTLr0PELRmtS9rNBTGmmIMuOfw4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "937760749920-9so07cv50inpk50nm9bgmr61oi9qia01.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
