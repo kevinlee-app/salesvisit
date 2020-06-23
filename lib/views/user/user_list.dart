@@ -14,6 +14,7 @@ class _UserListState extends State<UserList> {
   Widget build(BuildContext context) {
     final users = Provider.of<List<UserData>>(context);
     return ListView.builder(
+      padding: EdgeInsets.only(bottom: 12.0),
       itemCount: users.length,
       itemBuilder: (context, index) {
         return UserTile(userData: users[index]);

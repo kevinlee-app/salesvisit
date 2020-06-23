@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:salesvisit/models/userdata.dart';
+import 'package:salesvisit/views/user/user_details.dart';
 
 class UserTile extends StatelessWidget {
   final UserData userData;
@@ -18,6 +19,10 @@ class UserTile extends StatelessWidget {
           ),
           title: Text(userData.name),
           subtitle: Text(userData.phone),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => UserDetails(userData: userData,))),
         ),
       ),
     );

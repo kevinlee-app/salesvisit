@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:salesvisit/models/userdata.dart';
 import 'package:salesvisit/services/auth.dart';
 import 'package:salesvisit/services/database.dart';
+import 'package:salesvisit/views/authenticate/register.dart';
 import 'package:salesvisit/views/user/user_list.dart';
 
 class UserMenu extends StatefulWidget {
@@ -24,17 +25,19 @@ class _UserMenuState extends State<UserMenu> {
           backgroundColor: Colors.blue,
           elevation: 0,
           title: Text('Users'),
-          // actions: <Widget>[
-          //   FlatButton.icon(
-          //     onPressed: () async {
-          //       await _authService.signOut();
-          //     },
-          //     icon: Icon(Icons.person),
-          //     label: Text('Sign Out'),
-          //   )
-          // ],
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => Register()));
+              },
+            )
+          ],
         ),
-        body: UserList(),
+        body: SafeArea(
+          child: UserList(),
+        ),
       ),
     );
   }

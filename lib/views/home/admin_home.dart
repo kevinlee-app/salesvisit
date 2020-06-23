@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:salesvisit/models/menu.dart';
 import 'package:salesvisit/models/userdata.dart';
@@ -151,12 +152,12 @@ class _AdminHomeState extends State<AdminHome> {
 
   Widget background() => Container(
         height: deviceSize.height * 0.385,
-        decoration:
+        decoration:                                                                       
             BoxDecoration(gradient: LinearGradient(colors: kitGradients)),
       );
 
   Widget dateText() => Text(
-        '17 May 2020',
+        '${DateFormat('EEEE, MMM d, yyyy').format(DateTime.now())}',
         style: TextStyle(
           color: Colors.white,
           fontSize: 18,

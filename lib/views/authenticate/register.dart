@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:salesvisit/models/userdata.dart';
 import 'package:salesvisit/services/auth.dart';
+import 'package:salesvisit/services/functions.dart';
 import 'package:salesvisit/shared/button_submit.dart';
 import 'package:salesvisit/shared/constants.dart';
 import 'package:salesvisit/extensions/string.dart';
@@ -15,7 +16,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  final AuthService _authService = AuthService();
+  final FunctionsService _funcService = FunctionsService();
   final _formKey = GlobalKey<FormState>();
 
   bool isAnimated = false;
@@ -27,14 +28,15 @@ class _RegisterState extends State<Register> {
     if (_formKey.currentState.validate()) {
       setState(() => loading = true);
       dynamic result =
-          await _authService.registerWithEmailandPassword(userData);
+          await _funcService.registerWithEmailandPassword(userData);
       if (result == null) {
         setState(() {
           error = "Error";
           loading = false;
         });
       } else {
-        widget.toggleView();
+        // widget.toggleView();
+        Navigator.pop(context);
       }
     }
   }
@@ -57,15 +59,16 @@ class _RegisterState extends State<Register> {
             resizeToAvoidBottomPadding: false,
             backgroundColor: Colors.white,
             appBar: AppBar(
-              backgroundColor: Colors.lightBlue,
+              title: Text('Register User'),
+              backgroundColor: Colors.blue,
               elevation: 0,
-              leading: IconButton(
-                onPressed: widget.toggleView,
-                icon: Icon(
-                  Icons.arrow_back,
-                  color: Colors.white,
-                ),
-              ),
+              // leading: IconButton(
+              //   onPressed: widget.toggleView,
+              //   icon: Icon(
+              //     Icons.arrow_back,
+              //     color: Colors.white,
+              //   ),
+              // ),
             ),
             body: AnimatedOpacity(
               opacity: isAnimated ? 1.0 : 0.0,

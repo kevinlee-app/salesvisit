@@ -48,6 +48,7 @@ class DatabaseService {
   List<UserData> _allUsersFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.documents.map((ud) {
       return UserData(
+        uid: ud.data['uid'] ?? '',
         email: ud.data['email'] ?? '',
         name: ud.data['name'] ?? '',
         phone: ud.data['phone'] ?? '',

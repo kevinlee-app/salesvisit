@@ -48,118 +48,122 @@ class _SignInState extends State<SignIn> {
         ? Loading()
         : Scaffold(
             resizeToAvoidBottomPadding: false,
-            body: Stack(
-              children: <Widget>[
-                FancyBackground(),
-                Positioned(
-                  left: 12,
-                  right: 12,
-                  top: 220,
-                  bottom: 50,
-                  child: Container(
-                    height: MediaQuery.of(context).size.height,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 2,
-                            blurRadius: 4,
-                          )
-                        ]),
-                    child: Form(
-                      key: _formKey,
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 25, right: 25),
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(height: 60),
-                            Text(
-                              'LOGIN',
-                              style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 30,
-                                  fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 40),
-                            TextFormField(
-                              validator: (val) =>
-                                  val.isEmpty ? "Enter an email" : null,
-                              onChanged: (val) {
-                                setState(() {
-                                  email = val;
-                                });
-                              },
-                              style: textInputStyle,
-                              decoration: textInputDecoration.copyWith(
-                                  labelText: "Email"),
-                            ),
-                            SizedBox(height: 30),
-                            TextFormField(
-                              validator: (val) => val.length < 6
-                                  ? "Enter password with 6+ characters"
-                                  : null,
-                              onChanged: (val) {
-                                setState(() {
-                                  password = val;
-                                });
-                              },
-                              decoration: textInputDecoration.copyWith(
-                                  labelText: "Password"),
-                              style: textInputStyle,
-                              obscureText: true,
-                            ),
-                            SizedBox(
-                              height: 12,
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: GestureDetector(
-                                onTap: () => {print("Forget Password")},
-                                child: Text(
-                                  'Forget your password?',
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.blue),
-                                  textAlign: TextAlign.right,
-                                ),
+            body: GestureDetector(
+              onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+              child: Stack(
+                children: <Widget>[
+                  FancyBackground(),
+                  Positioned(
+                    left: 12,
+                    right: 12,
+                    top: 220,
+                    bottom: 50,
+                    child: Container(
+                      height: MediaQuery.of(context).size.height,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 4,
+                            )
+                          ]),
+                      child: Form(
+                        key: _formKey,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 25, right: 25),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 60),
+                              Text(
+                                'LOGIN',
+                                style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
                               ),
-                            ),
-                            SizedBox(height: 50),
-                            CustomButtonSubmit(
-                              height: 60,
-                              width: 200,
-                              text: 'LOGIN',
-                              onPressed: _onLoginPressed,
-                            ),
-                            SizedBox(height: 10),
-                            GestureDetector(
-                              onTap: _onRegisterPressed,
-                              child: Container(
-                                alignment: Alignment.center,
-                                height: 40,
-                                width: MediaQuery.of(context).size.width - 180,
-                                child: Text(
-                                  'Don\'t have an account? Sign up',
-                                  style: TextStyle(
-                                      fontSize: 14, color: Colors.blue),
-                                  textAlign: TextAlign.right,
-                                ),
+                              SizedBox(height: 40),
+                              TextFormField(
+                                validator: (val) =>
+                                    val.isEmpty ? "Enter an email" : null,
+                                onChanged: (val) {
+                                  setState(() {
+                                    email = val;
+                                  });
+                                },
+                                style: textInputStyle,
+                                decoration: textInputDecoration.copyWith(
+                                    labelText: "Email"),
                               ),
-                            ),
-                            SizedBox(height: 10),
-                            Text(
-                              error,
-                              style: TextStyle(color: Colors.red, fontSize: 16),
-                            ),
-                          ],
+                              SizedBox(height: 30),
+                              TextFormField(
+                                validator: (val) => val.length < 6
+                                    ? "Enter password with 6+ characters"
+                                    : null,
+                                onChanged: (val) {
+                                  setState(() {
+                                    password = val;
+                                  });
+                                },
+                                decoration: textInputDecoration.copyWith(
+                                    labelText: "Password"),
+                                style: textInputStyle,
+                                obscureText: true,
+                              ),
+                              // SizedBox(
+                              //   height: 12,
+                              // ),
+                              // Align(
+                              //   alignment: Alignment.centerRight,
+                              //   child: GestureDetector(
+                              //     onTap: () => {print("Forget Password")},
+                              //     child: Text(
+                              //       'Forget your password?',
+                              //       style: TextStyle(
+                              //           fontSize: 14, color: Colors.blue),
+                              //       textAlign: TextAlign.right,
+                              //     ),
+                              //   ),
+                              // ),
+                              SizedBox(height: 50),
+                              CustomButtonSubmit(
+                                height: 60,
+                                width: 200,
+                                text: 'LOGIN',
+                                onPressed: _onLoginPressed,
+                              ),
+                              SizedBox(height: 10),
+                              // GestureDetector(
+                              //   onTap: _onRegisterPressed,
+                              //   child: Container(
+                              //     alignment: Alignment.center,
+                              //     height: 40,
+                              //     width: MediaQuery.of(context).size.width - 180,
+                              //     child: Text(
+                              //       'Don\'t have an account? Sign up',
+                              //       style: TextStyle(
+                              //           fontSize: 14, color: Colors.blue),
+                              //       textAlign: TextAlign.right,
+                              //     ),
+                              //   ),
+                              // ),
+                              // SizedBox(height: 10),
+                              Text(
+                                error,
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 16),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           );
   }
