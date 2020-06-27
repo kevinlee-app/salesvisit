@@ -7,7 +7,8 @@ import 'package:salesvisit/models/visit.dart';
 class DatabaseService {
   final String uid;
   final String visitID;
-  DatabaseService({this.uid, this.visitID});
+  final String storeID;
+  DatabaseService({this.uid, this.visitID, this.storeID});
 
   final CollectionReference userDataCollection =
       Firestore.instance.collection("userdata");
@@ -16,7 +17,7 @@ class DatabaseService {
       Firestore.instance.collection("store");
 
   final CollectionReference visitCollection =
-      Firestore.instance.collection("userdata");
+      Firestore.instance.collection("visit");
 
   /* -> User Data */
 
@@ -84,7 +85,7 @@ class DatabaseService {
   Future insertNewStore(Store store) async {
     DocumentReference docRef = storeCollection.document();
     return await docRef.setData({
-      'documentID': docRef.documentID,
+      'storeID': docRef.documentID,
       'name': store.name,
       'ownerName': store.ownerName,
       'phone': store.phone,
@@ -131,6 +132,7 @@ class DatabaseService {
 
   Store _storeFromSnapshot(DocumentSnapshot snapshot) {
     return Store(
+      storeID: snapshot.data['storeID'],
       name: snapshot.data['name'] ?? '',
       ownerName: snapshot.data['ownerName'] ?? '',
       phone: snapshot.data['phone'] ?? '',
@@ -149,7 +151,7 @@ class DatabaseService {
   }
 
   Stream<Store> get store {
-    return storeCollection.document(uid).snapshots().map(_storeFromSnapshot);
+    return storeCollection.document(storeID).snapshots().map(_storeFromSnapshot);
   }
 
   /* Store <- */
@@ -158,7 +160,8 @@ class DatabaseService {
 
   Future<void> insertNewVisit(Visit visit) async {
     DocumentReference docRef =
-        userDataCollection.document(uid).collection("visit").document();
+      // userDataCollection.document(uid).collection("visit").document();
+      visitCollection.document();
     final response = await docRef.setData({
       'visitID': docRef.documentID,
       'storeID': visit.storeID,
@@ -176,9 +179,7 @@ class DatabaseService {
   }
 
   Future updateVisit(Visit visit) async {
-    return await userDataCollection
-        .document(uid)
-        .collection("visit")
+    return await visitCollection
         .document(visit.visitID)
         .updateData({
       'description': visit.description,
@@ -192,6 +193,8 @@ class DatabaseService {
 
   List<Visit> _allVisitFromSnapshot(QuerySnapshot snapshot) {
     return snapshot.documents.map((visit) {
+    Timestamp createdStamp = visit.data['createdDate'];
+
       return Visit(
         visitID: visit.data['visitID'] ?? null,
         storeID: visit.data['storeID'] ?? null,
@@ -199,7 +202,7 @@ class DatabaseService {
         photoPath: visit.data['photoPath'] ?? '',
         lat: double.parse(visit.data['lat'].toString()) ?? 0,
         lang: double.parse(visit.data['lang'].toString()) ?? 0,
-        createdDate: visit.data['createdDate'].toString() ?? '',
+        createdDate: createdStamp.toDate(),
         createdBy: visit.data['createdBy'] ?? '',
         modifiedDate: visit.data['modifiedDate'].toString() ?? '',
         modifiedBy: visit.data['modifiedBy'] ?? '',
@@ -208,6 +211,8 @@ class DatabaseService {
   }
 
   Visit _visitFromSnapshot(DocumentSnapshot visit) {
+    Timestamp createdStamp = visit.data['createdDate'];
+
     return Visit(
       visitID: visit.data['visitID'] ?? null,
       storeID: visit.data['storeID'] ?? null,
@@ -215,7 +220,7 @@ class DatabaseService {
       photoPath: visit.data['photoPath'] ?? '',
       lat: double.parse(visit.data['lat'].toString()) ?? 0,
       lang: double.parse(visit.data['lang'].toString()) ?? 0,
-      createdDate: visit.data['createdDate'].toString() ?? '',
+      createdDate: createdStamp.toDate(),
       createdBy: visit.data['createdBy'] ?? '',
       modifiedDate: visit.data['modifiedDate'].toString() ?? '',
       modifiedBy: visit.data['modifiedBy'] ?? '',
@@ -227,26 +232,28 @@ class DatabaseService {
   }
 
   Stream<List<Visit>> get visits {
-    return userDataCollection
-        .document(uid)
-        .collection("visit")
+    var now = DateTime.now();
+    var today = DateTime(now.year, now.month, now.day);
+    return visitCollection
+        .where("createdDate", isGreaterThanOrEqualTo: today)
+        .orderBy("createdDate", descending: true)
         .snapshots()
         .map(_allVisitFromSnapshot);
   }
 
   Stream<Visit> get visit {
-    return userDataCollection
-        .document(uid)
-        .collection("visit")
+    return visitCollection
         .document(visitID)
         .snapshots()
         .map(_visitFromSnapshot);
   }
 
   Stream<int> get totalVisit {
-    return userDataCollection
-        .document(uid)
-        .collection("visit")
+    var now = DateTime.now();
+    var today = DateTime(now.year, now.month, now.day);
+    return visitCollection
+        .where("createdDate", isGreaterThanOrEqualTo: today)
+        .where("createdBy", isEqualTo: uid)
         .snapshots()
         .map(_userVisitsCount);
   }

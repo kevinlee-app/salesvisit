@@ -12,7 +12,7 @@ class Visit {
   String photoPath;
   double lat;
   double lang;
-  String createdDate;
+  DateTime createdDate;
   String createdBy;
   String modifiedDate;
   String modifiedBy;

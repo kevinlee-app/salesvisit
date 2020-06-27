@@ -19,7 +19,8 @@ class VisitDetails extends StatefulWidget {
   final bool isAdding;
   final String storeCode;
   final UserData userData;
-  VisitDetails({this.isAdding, this.storeCode, this.userData});
+  final Visit visit;
+  VisitDetails({this.isAdding, this.storeCode, this.userData, this.visit});
 
   @override
   _VisitDetailsState createState() => _VisitDetailsState();
@@ -98,19 +99,30 @@ class _VisitDetailsState extends State<VisitDetails> {
             ),
             borderRadius: BorderRadius.circular(5),
           ),
-          child: imagePath == null
-              ? RaisedButton(
-                  onPressed: _openCamera,
-                  color: Colors.blue,
-                  child: Text(
-                    'Take a photo',
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                )
-              : GestureDetector(
-                  onTap: _openCamera,
-                  child: Image.file(
-                    File(imagePath),
+          child: widget.isAdding
+              ? imagePath == null
+                  ? RaisedButton(
+                      onPressed: _openCamera,
+                      color: Colors.blue,
+                      child: Text(
+                        'Take a photo',
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                    )
+                  : GestureDetector(
+                      onTap: _openCamera,
+                      child: Image.file(
+                        File(imagePath),
+                      ),
+                    )
+              : Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    image: DecorationImage(
+                      image: NetworkImage(widget.visit.photoPath),
+                      fit: BoxFit.contain,
+                    ),
+                    shape: BoxShape.rectangle,
                   ),
                 ),
         ),
@@ -139,6 +151,119 @@ class _VisitDetailsState extends State<VisitDetails> {
     print(imagePath);
   }
 
+  Widget _bodyWidget() {
+    return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.blue,
+        elevation: 0,
+        title: Text(title),
+      ),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 20),
+                  TextFormField(
+                    initialValue: visit.store.name ?? '',
+                    enabled: false,
+                    validator: (val) => validatorAddStore("store_name", val),
+                    onChanged: (val) {
+                      setState(() {
+                        visit.store.name = val;
+                      });
+                    },
+                    decoration:
+                        textInputDecoration.copyWith(labelText: "Store Name"),
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 300,
+                    child: GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: _center,
+                        zoom: 11,
+                      ),
+                      onMapCreated: _onMapCreated,
+                      rotateGesturesEnabled: false,
+                      scrollGesturesEnabled: false,
+                      tiltGesturesEnabled: false,
+                      markers: _markers.values.toSet(),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  TextFormField(
+                    enabled: enableEdit,
+                    maxLines: 10,
+                    initialValue: visit.description ?? '',
+                    validator: (val) => validatorAddStore("description", val),
+                    onChanged: (val) {
+                      setState(() {
+                        visit.description = val;
+                      });
+                    },
+                    decoration:
+                        textInputDecoration.copyWith(labelText: "Description"),
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  SizedBox(height: 20),
+                  _imageView(context),
+                  SizedBox(height: 30),
+                  Visibility(
+                    visible: !isButtonHidden,
+                    child: RaisedButton(
+                      onPressed: () async {
+                        setState(() => loading = true);
+                        StorageServiceResult resultStorage =
+                            await StorageService().uploadImage(
+                                imageToUpload: File(imagePath), title: "");
+                        if (resultStorage.success) {
+                          visit.photoPath = resultStorage.imageUrl;
+                          visit.lat = _center.latitude;
+                          visit.lang = _center.longitude;
+
+                          await DatabaseService(uid: widget.userData.uid)
+                              .insertNewVisit(visit)
+                              .then((value) {
+                                Navigator.pop(context);
+                              })
+                              .timeout(Duration(seconds: 10))
+                              .catchError((error) {
+                                setState(() {
+                                  error = "Error";
+                                  loading = false;
+                                });
+                              });
+                        }
+                      },
+                      color: Colors.blue,
+                      child: Text(
+                        widget.isAdding ? 'Add' : 'Edit',
+                        style: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    error,
+                    style: TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -157,148 +282,23 @@ class _VisitDetailsState extends State<VisitDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Store>(
-        stream:
-            DatabaseService(uid: SVEncrypter().decrypt(widget.storeCode)).store,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            visit.store = snapshot.data;
-            return loading
-                ? Loading()
-                : Scaffold(
-                    resizeToAvoidBottomPadding: false,
-                    backgroundColor: Colors.white,
-                    appBar: AppBar(
-                      backgroundColor: Colors.blue,
-                      elevation: 0,
-                      title: Text(title),
-                      actions: <Widget>[
-                        widget.isAdding
-                            ? Container()
-                            : IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isButtonHidden = !isButtonHidden;
-                                    enableEdit = !enableEdit;
-                                    if (enableEdit) {
-                                      iconEdit = Icons.cancel;
-                                    } else {
-                                      iconEdit = Icons.edit;
-                                    }
-                                  });
-                                },
-                                icon: Icon(iconEdit),
-                              )
-                      ],
-                    ),
-                    body: SingleChildScrollView(
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(height: 20),
-                              TextFormField(
-                                initialValue: visit.store.name ?? '',
-                                enabled: false,
-                                validator: (val) =>
-                                    validatorAddStore("store_name", val),
-                                onChanged: (val) {
-                                  setState(() {
-                                    visit.store.name = val;
-                                  });
-                                },
-                                decoration: textInputDecoration.copyWith(
-                                    labelText: "Store Name"),
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width,
-                                height: 300,
-                                child: GoogleMap(
-                                  initialCameraPosition: CameraPosition(
-                                    target: _center,
-                                    zoom: 11,
-                                  ),
-                                  onMapCreated: _onMapCreated,
-                                  rotateGesturesEnabled: false,
-                                  scrollGesturesEnabled: false,
-                                  tiltGesturesEnabled: false,
-                                  markers: _markers.values.toSet(),
-                                ),
-                              ),
-                              SizedBox(height: 20),
-                              TextFormField(
-                                maxLines: 10,
-                                initialValue: visit.description ?? '',
-                                validator: (val) =>
-                                    validatorAddStore("description", val),
-                                onChanged: (val) {
-                                  setState(() {
-                                    visit.description = val;
-                                  });
-                                },
-                                decoration: textInputDecoration.copyWith(
-                                    labelText: "Description"),
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              SizedBox(height: 20),
-                              _imageView(context),
-                              SizedBox(height: 30),
-                              Visibility(
-                                visible: !isButtonHidden,
-                                child: RaisedButton(
-                                  onPressed: () async {
-                                    setState(() => loading = true);
-                                    StorageServiceResult resultStorage =
-                                        await StorageService().uploadImage(
-                                            imageToUpload: File(imagePath),
-                                            title: "");
-                                    if (resultStorage.success) {
-                                      visit.photoPath = imagePath;
-                                      visit.lat = _center.latitude;
-                                      visit.lang = _center.longitude;
-
-                                      await DatabaseService(
-                                              uid: widget.userData.uid)
-                                          .insertNewVisit(visit)
-                                          .then((value) {
-                                            Navigator.pop(context);
-                                          })
-                                          .timeout(Duration(seconds: 10))
-                                          .catchError((error) {
-                                            setState(() {
-                                              error = "Error";
-                                              loading = false;
-                                            });
-                                          });
-                                    }
-                                  },
-                                  color: Colors.blue,
-                                  child: Text(
-                                    widget.isAdding ? 'Add' : 'Edit',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 20),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 12),
-                              Text(
-                                error,
-                                style:
-                                    TextStyle(color: Colors.red, fontSize: 16),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-          } else {
-            return Loading();
-          }
-        });
+    return widget.isAdding
+        ? StreamBuilder<Store>(
+            stream: DatabaseService(
+                    storeID: SVEncrypter().decrypt(widget.storeCode))
+                .store,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                visit.store = snapshot.data;
+                visit.storeID = visit.store.storeID;
+                return loading ? Loading() : _bodyWidget();
+              } else {
+                return Loading();
+              }
+            })
+        : Builder(builder: (context) {
+            visit = widget.visit;
+            return _bodyWidget();
+          });
   }
 }

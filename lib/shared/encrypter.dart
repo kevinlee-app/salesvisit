@@ -11,8 +11,7 @@ class SVEncrypter {
     final encrypted = encrypter.encrypt(data, iv: iv);
     final decrypted = encrypter.decrypt(encrypted, iv: iv);
 
-    print(decrypted);
-    print(encrypted.base64);
+    print("COPY THIS : " + encrypted.base64);
 
     return encrypted.base64;
   }

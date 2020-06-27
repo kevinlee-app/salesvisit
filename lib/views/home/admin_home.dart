@@ -117,42 +117,28 @@ class _AdminHomeState extends State<AdminHome> {
 
   Widget dashboardBottom(BuildContext context) => Padding(
         padding: EdgeInsets.only(left: 12, right: 12, top: 5, bottom: 22),
-        child: Stack(
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                    )
-                  ]),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.only(left: 12, top: 12),
-                      height: deviceSize.height * 0.04,
-                      child: Text(
-                        'VISITS',
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontSize: 23,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    VisitDetailsList(),
-                  ]),
-            ),
-          ],
-        ),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.only(left: 12, top: 12),
+                height: deviceSize.height * 0.04,
+                child: Text(
+                  'VISITS',
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontSize: 23,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              VisitDetailsList(),
+            ]),
       );
 
   Widget background() => Container(
         height: deviceSize.height * 0.385,
-        decoration:                                                                       
+        decoration:
             BoxDecoration(gradient: LinearGradient(colors: kitGradients)),
       );
 
@@ -166,18 +152,27 @@ class _AdminHomeState extends State<AdminHome> {
         textAlign: TextAlign.center,
       );
 
-  Widget allCards(BuildContext context) => SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            appBarColumn(context),
-            SizedBox(height: deviceSize.height * 0.002),
-            actionMenuCard(),
-            SizedBox(height: deviceSize.height * 0.01),
-            VisitTotalList(),
-            SizedBox(height: deviceSize.height * 0.03),
-            dashboardBottom(context),
-          ],
-        ),
+  Widget allCards(BuildContext context) => Column(
+        children: <Widget>[
+          appBarColumn(context),
+          SizedBox(height: deviceSize.height * 0.002),
+          actionMenuCard(),
+          SizedBox(height: deviceSize.height * 0.01),
+          VisitTotalList(),
+          SizedBox(height: deviceSize.height * 0.03),
+          // dashboardBottom(context),
+          Text(
+            'VISITS',
+            style: TextStyle(
+              color: Colors.black87,
+              fontSize: 23,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.left,
+          ),
+          SizedBox(height: deviceSize.height * 0.01),
+          Expanded(child: VisitDetailsList())
+        ],
       );
 
   void _onPopupItemSelected(String type) async {
@@ -217,9 +212,13 @@ class _AdminHomeState extends State<AdminHome> {
     deviceSize = MediaQuery.of(context).size;
     user = Provider.of<UserData>(context);
 
-    return StreamProvider<List<UserData>>.value(
-      initialData: List(),
-      value: DatabaseService().allUsers,
+    return MultiProvider(
+      providers: [
+        StreamProvider<List<UserData>>.value(
+            initialData: List(), value: DatabaseService().allUsers),
+        StreamProvider<List<Visit>>.value(
+            initialData: List(), value: DatabaseService().visits),
+      ],
       child: Scaffold(
         body: Stack(
           children: <Widget>[

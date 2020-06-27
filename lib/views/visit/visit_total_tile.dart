@@ -23,18 +23,19 @@ class VisitTotalTile extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Container(
-                    width: 76,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      image: DecorationImage(
-                        image: NetworkImage(
-                            'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg'),
-                        fit: BoxFit.fill,
-                      ),
-                      shape: BoxShape.rectangle,
-                    ),
-                  ),
+                  // Container(
+                  //   width: 76,
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(5),
+                  //     image: DecorationImage(
+                  //       image: NetworkImage(
+                  //           'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg'),
+                  //       fit: BoxFit.fill,
+                  //     ),
+                  //     shape: BoxShape.rectangle,
+                  //   ),
+                  // ),
+                  FlutterLogo(size: 60),
                   SizedBox(width: 16),
                   Expanded(
                     child: Column(

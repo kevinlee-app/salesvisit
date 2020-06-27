@@ -28,7 +28,7 @@ class Scanner extends StatelessWidget {
       this.controller = controller;
 
       controller.scannedDataStream.listen((scanData) async {
-        controller.pauseCamera();
+        this.controller.pauseCamera();
 
         await Navigator.push(
           context,
@@ -36,7 +36,7 @@ class Scanner extends StatelessWidget {
               builder: (context) => VisitDetails(storeCode: scanData, isAdding: true, userData: userData,)),
         );
 
-        controller.resumeCamera();
+        this.controller.resumeCamera();
       });
     }
 

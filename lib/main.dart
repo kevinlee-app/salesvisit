@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom])
-    SVEncrypter().encrypt("Sr0mXvp1X6Y6hppcolYf");
+    SVEncrypter().encrypt("lusOvYUBtjDolGfz75V6");
     // return StreamProvider<User>.value(
     //   value: AuthService().user,
     //       child: MaterialApp(

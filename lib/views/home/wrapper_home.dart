@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:salesvisit/models/user.dart';
 import 'package:salesvisit/models/userdata.dart';
+import 'package:salesvisit/shared/loading.dart';
 import 'package:salesvisit/views/home/admin_home.dart';
 import 'package:salesvisit/views/home/user_home.dart';
 
@@ -15,12 +16,14 @@ class _WrapperHomeState extends State<WrapperHome> {
   Widget build(BuildContext context) {
     final userData = Provider.of<UserData>(context);
 
-    if(userData!= null) {
+    if(userData.uid != null) {
       if(userData.isAdmin) {
         return AdminHome();
       } else {
         return UserHome();
       }
+    } else {
+      return Loading();
     }
   }
 }
