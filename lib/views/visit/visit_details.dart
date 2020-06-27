@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -14,6 +15,7 @@ import 'package:salesvisit/shared/encrypter.dart';
 import 'package:salesvisit/shared/loading.dart';
 import 'package:salesvisit/extensions/string.dart';
 import 'package:salesvisit/views/camera/camera.dart';
+import 'package:salesvisit/shared/utils.dart';
 
 class VisitDetails extends StatefulWidget {
   final bool isAdding;
@@ -29,11 +31,14 @@ class VisitDetails extends StatefulWidget {
 class _VisitDetailsState extends State<VisitDetails> {
   final _formKey = GlobalKey<FormState>();
   final Map<String, Marker> _markers = {};
+  final Map<String, Circle> _circles = {};
+  final double radius = 30.0;
 
   Visit visit = Visit();
   bool loading = false;
   bool enableEdit;
   bool isButtonHidden = false;
+  bool isInRadius = false;
   String title;
   String error = '';
   String imagePath;
@@ -41,27 +46,54 @@ class _VisitDetailsState extends State<VisitDetails> {
   LatLng _center = LatLng(45.521563, -122.677433);
 
   Future<void> _onMapCreated(GoogleMapController controller) async {
-    if (widget.isAdding) {
-      _center = await _currentCoordinates();
-    } else {
-      _center = LatLng(visit.lat, visit.lang);
-    }
+    final LatLng _currentCenter = await _currentCoordinates();
+    _center = LatLng(visit.store.lat, visit.store.lang);
 
+    final double distanceInMeters = await Geolocator().distanceBetween(
+        _center.latitude,
+        _center.longitude,
+        _currentCenter.latitude,
+        _currentCenter.longitude);
+
+    setState(() {
+      isInRadius = distanceInMeters <= radius;
+    });
+
+    final Uint8List storeIconBytes =
+        await getBytesFromAsset('assets/store.png', 100);
     setState(() {
       _markers.clear();
       final marker = Marker(
-        markerId: MarkerId("currentLocation"),
-        position: LatLng(_center.latitude, _center.longitude),
-        infoWindow: InfoWindow(
-          title: "Hello",
-          snippet: "Snippet Hello",
-        ),
+          markerId: MarkerId("currentLocation"),
+          position: LatLng(_center.latitude, _center.longitude),
+          infoWindow: InfoWindow(
+            title: "Current Location",
+          ),
+          icon: BitmapDescriptor.fromBytes(storeIconBytes));
+
+      final visitMarker = Marker(
+        markerId: MarkerId("visitLocation"),
+        position: LatLng(_currentCenter.latitude, _currentCenter.longitude),
+        infoWindow: InfoWindow(title: "Visit Location"),
       );
+
       _markers["currentLocation"] = marker;
+      _markers["visitLocation"] = visitMarker;
+
+      _circles.clear();
+      final circle = Circle(
+          circleId: CircleId("circleCurrent"),
+          fillColor: Colors.redAccent.withOpacity(0.5),
+          strokeWidth: 2,
+          strokeColor: Colors.redAccent,
+          radius: radius,
+          center: _center);
+
+      _circles["circleCurrent"] = circle;
 
       controller.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(target: _center, zoom: 20.0),
+          CameraPosition(target: _center, zoom: 19.0),
         ),
       );
     });
@@ -189,14 +221,31 @@ class _VisitDetailsState extends State<VisitDetails> {
                     child: GoogleMap(
                       initialCameraPosition: CameraPosition(
                         target: _center,
-                        zoom: 11,
+                        zoom: 10,
                       ),
                       onMapCreated: _onMapCreated,
                       rotateGesturesEnabled: false,
                       scrollGesturesEnabled: false,
                       tiltGesturesEnabled: false,
                       markers: _markers.values.toSet(),
+                      circles: _circles.values.toSet(),
                     ),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(isInRadius ? Icons.beenhere : Icons.backspace,
+                          color: isInRadius ? Colors.green : Colors.redAccent),
+                      SizedBox(width: 10),
+                      Text(
+                        isInRadius
+                            ? "Inside radius of " + radius.toString() + "m"
+                            : "Outside radius of " + radius.toString() + "m",
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                   SizedBox(height: 20),
                   TextFormField(
