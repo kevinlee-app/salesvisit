@@ -46,14 +46,20 @@ class _VisitDetailsState extends State<VisitDetails> {
   LatLng _center = LatLng(45.521563, -122.677433);
 
   Future<void> _onMapCreated(GoogleMapController controller) async {
-    final LatLng _currentCenter = await _currentCoordinates();
+    LatLng _visitCenter;
+    if (widget.isAdding) {
+      _visitCenter = await _currentCoordinates();
+    } else {
+      _visitCenter = LatLng(visit.lat, visit.lang);
+    }
+
     _center = LatLng(visit.store.lat, visit.store.lang);
 
     final double distanceInMeters = await Geolocator().distanceBetween(
         _center.latitude,
         _center.longitude,
-        _currentCenter.latitude,
-        _currentCenter.longitude);
+        _visitCenter.latitude,
+        _visitCenter.longitude);
 
     setState(() {
       isInRadius = distanceInMeters <= radius;
@@ -64,32 +70,32 @@ class _VisitDetailsState extends State<VisitDetails> {
     setState(() {
       _markers.clear();
       final marker = Marker(
-          markerId: MarkerId("currentLocation"),
+          markerId: MarkerId("storeLocation"),
           position: LatLng(_center.latitude, _center.longitude),
           infoWindow: InfoWindow(
-            title: "Current Location",
+            title: "Store Location",
           ),
           icon: BitmapDescriptor.fromBytes(storeIconBytes));
 
       final visitMarker = Marker(
         markerId: MarkerId("visitLocation"),
-        position: LatLng(_currentCenter.latitude, _currentCenter.longitude),
+        position: LatLng(_visitCenter.latitude, _visitCenter.longitude),
         infoWindow: InfoWindow(title: "Visit Location"),
       );
 
-      _markers["currentLocation"] = marker;
+      _markers["storeLocation"] = marker;
       _markers["visitLocation"] = visitMarker;
 
       _circles.clear();
       final circle = Circle(
-          circleId: CircleId("circleCurrent"),
+          circleId: CircleId("circleStore"),
           fillColor: Colors.redAccent.withOpacity(0.5),
           strokeWidth: 2,
           strokeColor: Colors.redAccent,
           radius: radius,
           center: _center);
 
-      _circles["circleCurrent"] = circle;
+      _circles["circleStore"] = circle;
 
       controller.animateCamera(
         CameraUpdate.newCameraPosition(
