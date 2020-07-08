@@ -44,9 +44,9 @@ class _VisitDetailsState extends State<VisitDetails> {
   String imagePath;
   IconData iconEdit = Icons.edit;
   LatLng _center = LatLng(45.521563, -122.677433);
+  LatLng _visitCenter = LatLng(0, 0);
 
   Future<void> _onMapCreated(GoogleMapController controller) async {
-    LatLng _visitCenter;
     if (widget.isAdding) {
       _visitCenter = await _currentCoordinates();
     } else {
@@ -281,8 +281,8 @@ class _VisitDetailsState extends State<VisitDetails> {
                                 imageToUpload: File(imagePath), title: "");
                         if (resultStorage.success) {
                           visit.photoPath = resultStorage.imageUrl;
-                          visit.lat = _center.latitude;
-                          visit.lang = _center.longitude;
+                          visit.lat = _visitCenter.latitude;
+                          visit.lang = _visitCenter.longitude;
 
                           await DatabaseService(uid: widget.userData.uid)
                               .insertNewVisit(visit)
