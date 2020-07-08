@@ -7,6 +7,7 @@ const textInputDecoration = InputDecoration(
     color: Colors.blue,
     fontSize: 20,
   ),
+  hintStyle: TextStyle(fontSize: 14),
   floatingLabelBehavior: FloatingLabelBehavior.always,
 );
 
